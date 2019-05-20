@@ -1,0 +1,41 @@
+
+function [u_tau, v_tau, sigma_error, cost_opt] = RED_k(P_e,P_e_pred,P_g,p_m,e,e_pred,tau,s)
+% compute predicted sigma
+sigma_pred = compute_sigma(P_g,P_e_pred,e_pred,p_m);
+if sigma_pred > 1
+    s = lambda;
+else
+    s = 1/lambda;
+end
+threshold = s * p_m;
+%only need to know up to time tau to compute v_tau
+diff_tau = P_g - P_e(1:tau);
+if sum(diff_tau.*e(1:tau)) >= threshold
+    v_tau = e(tau);
+else
+    v_tau = 0;
+end
+    
+u_tau = e(tau) - v_tau;
+
+% compute competitive ratio and sigma error for 
+% experimental purposes
+sigma = compute_sigma(P_g,P_e,e,p_m);
+
+if sigma <= 1
+    cost_opt = sum(P_g.*e);
+else
+    cost_opt = sum(P_e.*e) + max(e)*p_m;
+end
+
+
+
+sigma_error = abs(sigma-sigma_pred);
+
+
+end
+
+
+    
+
+
